@@ -1,0 +1,376 @@
+            *** FSJ : File Splitter e Joiner - versione 1.0 ***
+
+              (c) 18 Novembre 2006 - Alessero Felice Cantatore
+
+Introduzione
+------------
+
+FSJ divide un file in pió pezzi o riunisce diversi file in un unico file.
+
+
+Sintassi
+--------
+
+Il programmama richiede un primo parametro obbligatorio (comando) che
+definisce il modo operativo (aiuto, divisione o concatenazione) e poi, in
+qualsiasi ordine, altri parametri e altre opzioni:
+
+   FSJ <comando[:parametri comando]> [nomefile] ... [nomefile] [opzione]
+
+'comando' puï essere sia minuscolo che maiuscolo e puï richiedere
+sottoparametri separati dal carattere di due punti (':'). I comandi validi
+sono:
+
+   H o ?    mostra l'aiuto del programmama,
+   S        divide un file,
+   J        concatena pió file in un unico file.
+
+Le opzioni possono essere espresse sia da caratteri minuscoli che maiuscoli e
+possono essere introdotte sia da una barra ('/') che da un trattino ('-').
+Le opzioni che richiedono parameteri usano un carattere di due punti (':')
+come separatore (p.es.: "/O:file????.txt").
+Opzioni multiple senza parametri non possono essere riunite insieme (p.es.
+"/PCW" non ä corretto in quanto ogni opzione deve essere preceduta da una
+barra o un trattino: "/p /c /w" o "-p -c -w").
+
+
+Istruzioni di uso di base
+-------------------------
+
+Per dividere il file:
+   'c:\dev\prj\big.ext'
+in 10 pezzi digitare:
+   FSJ S:10 c:\dev\prj\big.ext
+i file cosç creati assumono i nomi predefiniti:
+   'pie00001.fsj' ... 'pie00010.fsj'
+
+Per specificare il percorso dei file di uscita (p.es.:'c:\upload') si puï usare
+l'opzione /O (fileuscita) terminando il nome del percorso con una barra:
+   FSJ S:10 c:\dev\prj\big.ext /O:c:\upload\
+
+Per specificare il percorso e nome (o solo il nome se il percorso di uscita
+coincide con directory corrente) delle parti del file, si aggiunga una maschera
+di nome di file con punti interrogativi ('?') come segnaposti.
+Per esempio per ottenere 10 parti di file chiamate:
+   'fp001.part' ... 'fp010.part'
+si digiti:
+   FSJ S:10 c:\dev\prj\big.ext /O:fp???.part
+
+Quando il percorso o nome dei file contiene degli spazi, si racchiuda l'intero
+parametro o anche solo il sottoparametro tra virgolette:
+   "/O:c:\percorso di upload\fp???.part"
+   oppure
+   /O:"c:\percorso di upload\fp???.part"
+
+Per dividere in base alla dimensione delle singole parti invece che per numero
+di parti si deve aggiungere un'unitÖ di misura dopo la dimensione:
+   S:10B      (la dimensione di una parte ä 10 byte)
+   S:10K      (la dimensione di una parte ä 10 * 1000 byte)
+   S:10Ki     (la dimensione di una parte ä 10 * 1024 byte)
+   altre unitÖ di misura sono M, Mi, G e Gi (MBs, e GBs)
+
+Esempi:
+   FSJ S:10500B divide un file in parti di 10.500 byte
+Si puï anche usare il carattere di sottolineatura ('_') come separatore delle
+migliaia:
+   FSJ S:10_500B divide un file in parti di 10.500 byte
+
+Per riunire i file 'alfa.txt', 'beta.bin', 'gamma.res' in un unico file
+chiamato 'various.stuff' si puï usare:
+   FSJ J:various.stuff alfa.txt beta.bin gamma.res
+
+Quando i file sono troppo per potere essere agevolmente specificati come
+parametri si possono elencare in un file di testo (un nome di file per linea)
+specificandone il nome tramite l'opzione /F (file listing):
+   FSJ J:various.stuff /F:C:\a_percorso\files.list
+
+Quando tutti i file da concatenare sono nella stessa directory, invece di
+specificare il nome e percorso completo per ogni file, si puï usare l'opzione
+/D (directory) per specificare il  percorso comune e poi usare solo i nomi
+dei file:
+   FSJ J:various.stuff /D:"g:\dvd\percorso file" alfa.txt beta.bin gamma.res
+o
+   FSJ J:various.stuff /D:"g:\dvd\percorso file" /F:C:\temp\files.list
+
+Quando i nomi dei file sono determinati dall'ordinale dei file stessi (p.es.
+'part001.file', 'part002.file' ... 'part149.file') basta usare l'opzione /I
+specificando il numero totale dei file e una maschera del nome dei file:
+   FSJ J:various.stuff /I:149:part???.file
+
+Per incrementare la velocitÖ di esecuzione, nel caso si abbia memoria
+sufficiente, si puï incrementare la dimensione del buffer di lettura/scrittura
+dal valore predefinito (1 MB) tramite l'opzione /B (buffer). Per esempio
+"/B:256" imposta la dimensione del buffer a 256 MB.
+Per usare un buffer di dimensione minima (64 KB) si deve specificare "/B:0".
+
+L'opzione /L (log) permette di salvare in un file di log un rapporto completo
+dell'operazione di divisione/concatenamento:
+   /L:"c:\percorso file di log\split.log"
+
+Per monitorare l'operazione tramite una barra di progresso ä sufficiente
+usare l'opzione /P.
+
+L'opzione /Q permette di non mostrare alcun messaggio sullo schermo.
+
+Qunado i file da concatenare devono essere letti o scritti da un supporto
+rimuovibile si puï usare l'opzione /W (wait) per sospendere l'esecuzione
+prima di ogni operazione di lettura/scrittura di un file.
+Prima di dividere o concatenare file, il programma calcola lo spazio sul disco
+necessario per i nuovi file.
+Quando si devono concatenare file situati su supporti rimuovibili l'opzione
+/W:1 permette di controllare solo la dimensione del primo file da concatenare
+(assumendo che tutti i file sono della stessa dimensione). L'opzione /W:N,
+invece, evita ogni calcolo di dimensione dei file (e disabilita la
+visualizzazione della barra di progresso).
+
+Quando il programma deve essere eseguito senza l'intervento dell'utente si
+deve usare l'opzione /U (unattended). In tal caso tutti gli errori sono
+considerati critici e nessuna conferma viene richiesta all'utente.
+
+
+Guida di riferimento
+--------------------
+ModalitÖ di aiuto
+-----------------
+
+Il comando di aiuto ä specificato tramite uno dei seguenti caratteri: 'h', 'H'
+o '?'.
+
+Syntassi:
+   SPLIT H
+   o
+   SPLIT ?
+      mostra informazioni sull'uso del programma in una finestra scrollabile.
+
+
+ModalitÖ divisione file
+-----------------------
+
+Il comando di divisione deifile ä specificato tramite i caratteri 's' o 'S'.
+
+Sintassi:
+   FSJ S:nnn[unitÖ] <nomefile> [/C[:nomefile.cmd]] [/O:filespec] [/B:nnn]
+                   [/U | /W[:N|1]] [/Q] [/P] [/L[:filelog]]
+
+      divide 'nomefile' in 'nnn' pezzi o in pezzi di nnn 'unitÖ' di
+      dimensione.
+
+Parametri del comando di divisione:
+   :nnn[unitÖ]
+            specifica la dimensione di un pezzo di file o il numero dei pezzi
+            di file. 'unitÖ' specifica se 'nnn' (che deve essere un numero
+            intero) ä il numero dei pezzi o la dimensione media di un pezzo
+            in Byte, KBs, MBs o GBs.
+
+            unitÖ             divide per
+
+            omessa o P         numero di pezzi
+            B                  dimensione pezzi (in byte)
+            K                  dimensione pezzi (in KB - 1,000 byte)
+            KI                 dimensione pezzi (in KiB - 1,024 byte)
+            M                  dimensione pezzi (in MB - 1,000,000 byte)
+            MI                 dimensione pezzi (in MiB - 1,048,576 byte)
+            G                  dimensione pezzi (in GB - 1,000,000,000 byte)
+            GI                 dimensione pezzi (in GiB - 1,073,741,824 byte)
+
+            I caratteri di sottolineatura (_) sono permessi per dividere le
+            cifre in migliaia (p.es. "S:3_000M" produce porzioni di file di
+            3,000,000 byte di dimensione).
+
+            Note
+            Quando si divide per numero di pezzi, la dimensione di ciascun
+            pezzo ä calcolata dividendo la dimensione del file da dividere per
+            il numero dei pezzi. PoichÇ la dimensione dei file puï essere solo
+            intera, spesso il risultato della suddetta divisione viene
+            arrotondato in eccesso.
+            Per questo motivo, quando il numero dei pezzi ä superiore alla
+            dimensione in byte di un singolo pezzo, il numero effettivo dei
+            file generati puï essere inferiore al richiesto.
+
+<nomefile>
+            specifica il nome del file da dividere. I caratteri jolly non sono
+            ammessi. Il parametro puï essere introdotto in qualsiasi posizione
+            successiva al parametro 'S'.
+
+Opzioni di divisione:
+   /C[:nomefile.cmd]
+            crea un file batch per ricostruire il file intero dalle parti.
+            Il file viene chiamato join.cmd a meno che l'utente non specifichi
+            un nome differente.
+            Il file batch deve essere opportunamente modificato se i file
+            generati sono spostati in un differente percorso o se il file
+            concatenato deve essere ricreato in un percorso differente dalla
+            directory di lavoro.
+            Esempi:
+            FSJ S:3 /C myDVD.iso
+               crea un file batch con il nome predefinito join.cmd.
+            FSJ S:5 -c:F:\fileparts\myDVD\joinDVD.cmd myDVD.iso
+               crea il file batch joinDVD.cmd
+
+   /O[:filespec]
+            specifica il percorso e/o i nomei dei file da creare.
+            Quando l'opzione ä omessa i file vengono creati nel percorso
+            correntes usando il nome predefinito pie?????.fsj dove ????? ä
+            sostituito dal numero del pezzo (p.es. se un file viene diviso
+            in 5 pezzi, i pezzi vengono chiamati pie00001.fsj - pie00005.fsj).
+
+            Per specificare solo li percorso di uscita (usando i nomi
+            predefiniti per le porzioni di file) filespec deve terminare con
+            una barra (p.es. "/O:d:\burntocd\").
+
+            Nel nome delle porzioni di file, i punti interrogativi sono usati
+            come segnaposti per l'indice del file.
+            Per esempio il comando:
+            FSJ S:3 /O:myCD???.part
+            produce: myCD001.part, myCD002.part e myCD003.part.
+            Quando necessario, il numero dei segnaposto viene automaticamente
+            incrementato per permettere un nome corretto per tutti i file.
+            Cioä se ci sono 100 pezzi di file e la maschera ä solo 'abc?.ext',
+            essa viene tradotta automaticamente in 'abc???.ext'.
+
+   Le altre opzioni comuni sono descritte dopo il comando di concatenamento.
+
+
+ModalitÖ concatenamento file
+----------------------------
+
+Il comando di concatenamentoviene specificato tramite i caratteri 'j' o 'J'.
+I nomi dei file da concatenare possono essere specificati in tre differenti
+modi:
+
+-1) esplicitamente come parametri:
+   FSJ J[:fileuscita] <pezzofile_1> ... <pezzofile_n>
+               [/D:percorso] [/B:nnn] [/U | /W[:N|1]] [/Q] [/P] [/L[:filelog]]
+
+-2) elencati in file di testo (un file per linea):
+   FSJ J[:fileuscita] [/F:listafile] [/D:percorso]
+               [/B:nnn] [/U | /W[:N|1]] [/Q] [/P] [/L[:filelog]]
+
+-3) specificati come numero di pezzi e maschera dove punti interrogativi ('?')
+    sono usati come segnaposti per il numero del pezzo:
+   FSJ J[:fileuscita] [/I:numero:filespec]
+               [/B:nnn] [/U | /W[:N|1]] [/Q] [/P] [/L[:filelog]]
+
+Parametri del comando di concatenamento:
+   :fileuscita
+            specifica il nome del file da creare dall'unione dei pezzi di file.
+
+            Quando questo parametro ä omesso viene usato il nome predefinito
+            (wholefil.fsj).
+
+<pezzofile_1> ... <pezzofile_n>
+            sono i nomi dei file immessi come parametri della riga di comando.
+            Questi parametri sono incompatibili con le opzioni /F o /I.
+
+Opzioni di concatenamento:
+   /D:percorso
+            specifica il percorso comune a tutti i pezzi di file. Questa
+            opzione ä valida solo quando i nomi dei pezzi dei file sono
+            immessi come parametri da riga di comando o sono elencati in
+            un file di testo.
+
+   /F:listafile
+            specifica il nome di un file di testo contenente (nell'ordine
+            corretto) i nomi dei file da concatenare, un file per linea.
+            Il file puï includere linee vuoto, ma le linee non pssono
+            cominciare con degli spazi tranne che nel caso che questi non
+            siano effettivamente parte del nome dei file.
+
+   /I:numero:filespec
+            'numero' ä un numero intero esprimente la quantitÖ di file
+            da concatenare, 'filespec' ä un nome di file includente punti
+            interrogativi come segnapesti per il numero di ogni pezzo di
+            file. Per esempio:
+            /I:3:filepart???.iso unisce 3 file: filepart001.iso,
+            filepart002.iso e filepart003.iso.
+            Quando necessario il numero dei segnaposti viene automaticamente
+            incrementato per creare un nome corretto per tutti i file.
+            Cioä se ci sono 100 pezzi di file e la maschera ä solo 'abc?.ext'
+            essa viene tradotta come 'abc???.ext'.
+            Quando i file da concatenare non sono nel percorso corrente
+            'filespec' deve includere il percorso dei file. Per esempio:
+            /I:3:d:\download\part???.iso
+
+   Le altre opzioni comuni sono descritte di seguito.
+
+
+Opzioni comuni a tutte le modalitÖ
+----------------------------------
+
+   /B:nnn
+            dimensione in MiB del buffer usato per la lettura e scrittura dei
+            file, dove nnn ä un numero da 0 a 1024.
+            Quando l'opzione viene omessa la dimensione del buffer viene
+            impostata ad 1 MBi. Quando il valore ä 0 (/B:0) la dimensione
+            del buffere viene impostata a 64 KBi.
+            Il buffer viene allocato nell'area di memoria oltre i primi
+            512 MB di indirizzamento se disponibile.
+            Se non c'ä memoria a sufficienza la dimensione del buffer viene
+            ridotta automaticamente.
+            La dimensione del buffer viene inoltre arrotondata ad un multiplo
+            di quella di una porzione di file.
+
+   /U
+            (unattended) esegue il programma senza bisogno di alcun intervento
+            dell'utente, evitando tutte le richieste di conferma causate da
+            errori non critici. Ogni condizione di errore viene considerata
+            critica e provoca la terminazione del programma.
+            Questa opzione non ä compatibile con /W. Se entrambe le opzioni
+            sono specificate il programma termina con un messaggio di errore.
+
+   /W
+            (wait) sospende l'esecuzione pausa prima della scrittura (divisione
+            di file) o lettura (concatenazione file) di ciascuna parte di file
+            allo scopo di permettere il cambiamento di un eventuale supporto
+            rimuovibile.
+
+            Nel caso di concatenazione di parti di file scritte su supporti
+            rimuovibili, il programma cerca di accedere a tutti i file per
+            calcolare la dimensione del file risultante dall'operazione di
+            concatenazione.
+            E' possibile evitare questa operazione tramite parametri specifici
+            dell'opzione /W:
+            /W:1   solo la dimensione del primo file viene controllata.
+                   La dimensione totale del file da creare viene calcolata
+                   moltiplicando la dimensione della prima parte di file per
+                   il numero delle parti di file. In questo caso il progresso
+                   mostrato sullo schermo puï non essere completamente preciso.
+            /W:N   evita qualsiasi controllo di dimensione dei file. La barra
+                   indicatrice di progresso viene disabilitata.
+
+            Questa opzione non ä compatibile con /U. Se entrambe le opzioni
+            sono specificate il programma termina con un messaggio di errore.
+
+   /Q
+            (quiet) non mostra alcun messaggio sullo schermo.
+
+   /P
+            mostra la barra di progresso.
+
+   /R       (run) ha lo scopo di incrementare o decrementare la prioritÖ del
+            programma:
+            /R+    forza l'esecuzione alla prioritÖ di 'foreground server'.
+            /R-    forza l'esecuzione alla prioritÖ 'idle'.
+
+   /L[:filelog]
+            i messaggi di esecuzione e di errore del programma sono scritti
+            sullo schermo (se non ä presente l'opzione /Q) e sul file di log
+            specificato.
+            Se filelog non ä specificato un file chiamato fsj.log viene creato
+            nel percorso %LOGFILE%, se disponibile, o nella directory corrente.
+
+   /V       (verbose) riporta dettagli relativi a qualsiasi operazione eseguita
+            sui file.
+            L'opzione /Q (quiet) ha la precedenza su questa opzione.
+
+
+Note
+----
+La divisione e il concatenamento di file ä limitato ad un massimo di 99.999
+parti di file.
+
+
+Supporto:
+---------
+homepage : http://xoomer.virgilio.it/acantato
+e-mail   : acantatore@tin.it

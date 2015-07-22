@@ -1,0 +1,360 @@
+            *** FSJ : File Splitter and Joiner - version 1.0 ***
+
+               (c) 16 Jun 2006 - Alessandro Felice Cantatore
+
+Introduction
+------------
+
+FSJ splits a file in multiple pieces or joins multiple files into a unique
+file.
+
+
+Syntax
+------
+
+The program takes a mandatory first argoment (command) defining the operation
+mode (help, split or join) and then, in any order, other parameters and
+options:
+
+   FSJ <command[:command parameters]> [filename] ... [filename] [options]
+
+'command' is case insensitive and in some cases takes sub-parameters separated
+by the colon character (':'). Valid commands are:
+
+   H or ?   shows the program help,
+   S        splits a file,
+   J        joins multiple files into a single file.
+
+Options are case insensitive and can be introduced either by a slash ('/') or
+by a dash ('-').
+Options which take parameters use a colon (':') as separator
+(e.g.: "/O:file????.txt").
+Multiple parameter-less options cannot be joined together (e.g. "/PCW" is
+wrong as each option must be prefixed by a slash or a dash: "/p /c /w" or
+"-p -c -w").
+
+
+Basic usage tutorial
+--------------------
+
+To split the file:
+   'c:\dev\prj\big.ext'
+in 10 pieces type:
+   FSJ S:10 c:\dev\prj\big.ext
+the file pieces get the default names:
+   'pie00001.fsj' ... 'pie00010.fsj'
+
+To specify an output path (e.g.:'c:\upload') for the file pieces use the /O
+(output) option and terminate the path with a slash:
+   FSJ S:10 c:\dev\prj\big.ext /O:c:\upload\
+
+To specify the path and name (or just the name if the output path is the
+current directory) of the file parts, add a file mask with '?' as place
+holders. For instance to get 10 file parts named:
+   'fp001.part' ... 'fp010.part'
+type:
+   FSJ S:10 c:\dev\prj\big.ext /O:fp???.part
+
+When path or file names contain blanks, enclose the whole parameter or just
+the the file name within double quotes:
+   "/O:c:\upload path\fp???.part"
+   or
+   /O:"c:\upload path\fp???.part"
+
+To split by part size instead or parts count use an unit of measure after
+the size specification:
+   S:10B      (part size is 10 bytes)
+   S:10K      (part size is 10 * 1000 bytes)
+   S:10Ki     (part size is 10 * 1024 bytes)
+   other units of measure are M, Mi, G and Gi (MBs, and GBs)
+
+Examples:
+   FSJ S:10500B divides a file in parts of 10,500 bytes
+The underscore character may be included as thousand separator:
+   FSJ S:10_500B divides a file in parts of 10,500 bytes
+
+To join the files 'alfa.txt', 'beta.bin', 'gamma.res' into a unique file
+called 'various.stuff' you can use:
+   FSJ J:various.stuff alfa.txt beta.bin gamma.res
+
+When there are too many files to be comfortably entered as parameters you
+can list them in a text file (a file per line) specifying its name via the
+/F (file listing) option:
+   FSJ J:various.stuff /F:C:\a_path\files.list
+
+When all the files to be concatenated are in a common path, rather than
+specifying the full path name of each file, you can use the /D (directory)
+option to specify the common path and then use just the file names:
+   FSJ J:various.stuff /D:"g:\dvd\file parts path" alfa.txt beta.bin gamma.res
+or
+   FSJ J:various.stuff /D:"g:\dvd\file parts path" /F:C:\a_path\files.list
+
+When the file names are determined by the ordinal of the file piece (e.g.
+'part001.file', 'part002.file' ... 'part149.file') it is possible to just
+use the /I option specifying the total count of pieces and a file mask:
+   FSJ J:various.stuff /I:149:part???.file
+
+If you want to increase the speed of execution and have enough free memory,
+you can increase the size of the read/write (which by default is 1 MB) via
+the /B (buffer) option. For instance "/B:256" sets the read/write buffer to
+256 MBs.
+To set the buffer to the minimum size (64 KB) just specify "B/:0".
+
+The /L (log) option allows tosave a full report of the split/join operation in
+a log file:
+   /L:"c:\logs path\split.log"
+
+To display a progress bar just use the /P (progress) option.
+
+If you do not want any messages on the screen just use /Q (quiet).
+
+When the files to concatenated must be read or written from/to multiple
+removable media, you can specify /W (wait option) to make FSJ pause before
+the read/write operation.
+Before splitting or joining files the program calculates the disk space used
+by the file(s) which are going to be created.
+When joining multiple files situated on different removable media the option
+/W:1 lets to check just the size of the first file (assuming that all files
+are about the same size) to calculate the total file of the file resulting
+from parts concatenation. The option /W:N, instead, completely avoids any
+file size check (and disable the progress bar).
+
+When the program must be run without user intervention specify /U (unattended
+option). In this case all errors are considered critical and no question is
+asked to the user.
+
+
+Reference
+---------
+Help mode
+---------
+
+The help command is specified by one of the following characters 'h', 'H' or
+'?'.
+
+Syntax:
+   SPLIT H
+   or
+   SPLIT ?
+      show informations about FSJ usage in a scrollable text window.
+
+
+Split mode
+----------
+
+The split command is specified by the character 's' or 'S'.
+
+Syntax:
+   FSJ S:nnn[unit] <filename> [/C[:filename.cmd]] [/O:filespec] [/B:nnn]
+                   [/U | /W[:N|1]] [/Q] [/P] [/L[:logfile]]
+
+      splits 'filename' into 'nnn' pieces or pieces of nnn 'unit' size.
+
+Split command parameters:
+   :nnn[unit]
+            specifies the size of a file piece or the number of file
+            pieces. 'unit' specifies if 'nnn' (which must be an integer
+            number) is the count of file pieces or the size of a file
+            piece in Bytes, KBs, MBs or GBs.
+
+            unit               split by
+
+            none or P          number of pieces
+            B                  piece size (in bytes)
+            K                  piece size (in KBs - 1,000 bytes)
+            KI                 piece size (in KiBs - 1,024 bytes)
+            M                  piece size (in MBs - 1,000,000 bytes)
+            MI                 piece size (in MiBs - 1,048,576 bytes)
+            G                  piece size (in GBs - 1,000,000,000 bytes)
+            GI                 piece size (in GiBs - 1,073,741,824 bytes)
+
+            Underscores (_) are allowed when specifying the file size or
+            the number of file pieces (e.g. "S:3_000M" produces file pieces
+            of 3,000,000 bytes of size).
+
+            Remarks
+            When splitting by pieces count, the size of the file pieces are
+            calculated by dividing the size of the file to be splitted by
+            the count of pieces. Since file sizes can only be integer numbers,
+            often the sizes of the single pieces must be rounded up.
+            For that reason, when the pieces count is greater than the size
+            in bytes of a single piece, the actual number of file piece may
+            be less than the entered amount.
+
+<filename>
+            specifies the name of the file to be splitted. Wildcard are not
+            allowed. Can be entered in any position after the command
+            parameter 'S'.
+
+Split options:
+   /C[:filename.cmd]
+            creates a batch file to rebuild the whole file from the parts.
+            The batch file is named join.cmd unless the user specifies a
+            different name.
+            The batch file must be modified as needed if the file pieces
+            are moved to a different path or if the joined file must not be
+            created in the working directory.
+            When the batch file path is not specified the batch file is
+            written in the path of the file pieces.
+            Examples:
+            FSJ S:3 /C myDVD.iso
+               creates a default batch file named join.cmd.
+            FSJ S:5 -c:F:\fileparts\myDVD\joinDVD.cmd myDVD.iso
+               creates a batch file named joinDVD.cmd
+
+   /O[:filespec]
+            specifies the path and/or the names of the output file pieces.
+            When the option is omitted, the file pieces are created in the
+            current path using the default name of pie?????.fsj where ?????
+            is replaced by the piece number (e.g. if a file is splitted in 5
+            pieces those pieces are named pie00001.fsj up to pie00005.fsj).
+
+            To specify just an output path (using the default piece names)
+            filespec must end with a slash (e.g. "/O:d:\burntocd\").
+
+            In file piece names, question marks ('?') are used as place
+            holders for the index of the file pieces.
+            For instance the command:
+            FSJ S:3 /O:myCD???.part
+            produces: myCD001.part, myCD002.part and myCD003.part.
+            When needed the number of digit place holders is automatically
+            increased to allow correct naming of all the file pieces.
+            That is, if there are 100 file pieces and the mask is just
+            'abc?.ext' it is automatically translated to 'abc???.ext'.
+
+   Other common options are described after the join command.
+
+
+Join mode
+---------
+
+The join command is specified by the character 'j' or 'J'. The names of the
+files to be joined into a new unique file can be specified in three different
+ways:
+
+-1) as an explicit list of file piece names:
+   FSJ J[:output] <filepiece_1> ... <filepiece_n>
+                  [/D:path] [/B:nnn] [/U | /W[:N|1]] [/Q] [/P] [/L[:logfile]]
+
+-2) file pieces are listed in a text file (one file per line):
+   FSJ J[:output] [/F:filelist] [/D:path]
+                  [/B:nnn] [/U | /W[:N|1]] [/Q] [/P] [/L[:logfile]]
+
+-3) file pieces are specified by count of pieces and a mask where question
+    marks ('?') are used as placed holders for piece numbers:
+   FSJ J[:output] [/I:count:filespec]
+                  [/B:nnn] [/U | /W[:N|1]] [/Q] [/P] [/L[:logfile]]
+
+Join command parameters:
+   :output
+            specifies the name of the file to be created by joining the file
+            pieces.
+            When this parameter is omitted the default name (wholefil.fsj)
+            is used.
+
+<filepiece_1> ... <filepiece_n>
+            are the names of the file pieces entered as command line arguments.
+            These parameters are incompatible with the /F or /I options.
+
+Join options:
+   /D:path
+            specifies the path common to all the file pieces. This option
+            is valid only when the names of the file pieces are entered as
+            command line parameters or when are listed in a text file.
+
+   /F:filelist
+            specifies the name of a text file containing (in the correct
+            order) the names of the file pieces, one file per line.
+            The file can include empty lines of text but the lines must not
+            start or end with blank spaces unless those are part of the file
+            name.
+
+   /I:count:filespec
+            'count' is an integer number expressing the amount of file
+            pieces, 'filespec' is a file name including question marks
+            as place holders for the file piece number. For instance:
+            /I:3:filepart???.iso joins 3 files: filepart001.iso,
+            filepart002.iso and filepart003.iso.
+            When needed the number of digit place holders is automatically
+            increased to allow correct naming of all the file pieces.
+            That is, if there are 100 file pieces and the mask is just
+            'abc?.ext' it is automatically translated to 'abc???.ext'.
+            When the files to be joined are not in the current directory
+            'filespec' must include the file path. For instance:
+            /I:3:d:\download\part???.iso
+
+   Other common options are described below.
+
+
+Common options
+--------------
+
+   /B:nnn
+            size in MiBs of the buffer used to read and write the files,
+            where nnn is a number ranging from 0 to 1024.
+            When the option is omitted the buffer size is set to 1 MiB.
+            When the value is 0 (/B:0) the buffer size is set to 64 KBis.
+            If the kernel supports high memory objects the buffer is
+            allocated above the first 512 MBs of memory.
+            If there is not enough memory the buffer size is automatically
+            reduced to the maximum available memory.
+            If the buffer size exceeds the size of the file pieces it's
+            automatically aligned to a multiple of a file piece size.
+
+   /U
+            (unattended) runs the program in unattended mode, preventing
+            all confirmation requests caused by non critical errors.
+            Each error condition is considered critical and causes the
+            immediate end of program execution.
+            This option is incompatible with /W. If both options are specified
+            the program terminates with an error message.
+
+   /W
+            (wait) pause before writing (split mode) or reading (join mode)
+            each file part in order to allow removable media swapping.
+
+            When joining file parts on removable media, before starting
+            the join operation FSJ tries to access all file parts to
+            calculate the size of the resulting file.
+            It is possible to override this behaviour by adding /W specific
+            parameters:
+            /W:1   make FSJ check only the size of the first file piece.
+                   The total size of the file to be created is calculated
+                   by multiplying the size of the first piece by the count
+                   of file pieces. In this case the progress displayed on
+                   the screen may not be completely accurate.
+            /W:N   avoid any size check. The display of the progress is
+                   disabled.
+
+            This option is incompatible with /W. If both options are specified
+            the program terminates with an error message.
+
+   /Q
+            (quiet) do not print any information on the screen.
+
+   /P
+            display a progress bar.
+
+   /R       (run) is meant to increase or decrease the program priority:
+            /R+    force execution at foreground server priority,
+            /R-    force execution at idle priority.
+
+   /L[:logfile]
+            work and error messages are written to the screen (if the option
+            /Q has not been specified) and to the specified logfile.
+            If logfile is not specified, a file fsj.log is created in the
+            %LOGFILE% path if set or in the current working directory.
+
+   /V       (verbose) report details about all the file I/O operations.
+            /Q (quiet) overrides the /V option.
+
+
+Notes
+-----
+* File joining/splitting is limited to a maximum of 99,999 file pieces.
+
+
+Support:
+--------
+homepage : http://xoomer.virgilio.it/acantato
+e-mail   : acantatore@tin.it
