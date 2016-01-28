@@ -3,7 +3,7 @@ FSJ stands for "File Splitter and Joiner". FSJ splits a file in multiple pieces 
 
 LICENSE
 ===============
-* Not Specified
+* BSD 3-Clause
 
 COMPILE TOOLS
 ===============
